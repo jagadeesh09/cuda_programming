@@ -1,6 +1,6 @@
 /*
 
-        Example of using threads in a CUDA program
+        Example of using threads and blocks in a CUDA program
 
 
                                                     */
@@ -9,13 +9,14 @@
 #include <time.h>
 
 
-#define N (1024)
-
+#define N (1024*1024)
+#define THREADS_PER_BLOCK 512
 
 
 __global__ void add(int *a, int *b, int *c){
 
-    c[threadIdx.x] = a[threadIdx.x] + b[threadIdx.x];
+    int index = threadIdx.x + blockIdx.x * blockDim.x;
+    c[index] = a[index] + b[index];
 
 }
 
@@ -47,13 +48,13 @@ int main(void) {
     random_ints(b, N);
     random_ints(a, N);
 
-    cudaMemcpy(d_a, &a, size, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_b, &b, size, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_a, a, size, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_b, b, size, cudaMemcpyHostToDevice);
     
     clock_t t;
     t = clock();
 
-    add<<<1,N>>>(d_a, d_b, d_c);
+    add<<<N/THREADS_PER_BLOCK, THREADS_PER_BLOCK>>>(d_a, d_b, d_c);
 
     t = clock() - t;
     double time_taken = ((double)t)/CLOCKS_PER_SEC;
