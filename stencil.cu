@@ -99,7 +99,7 @@ int main(void) {
     cudaMemcpy(c, d_c, size, cudaMemcpyDeviceToHost);
 
     cudaFree(d_a);
-    cudaFree(d_c);
+    cudaFree(d_b);
     cudaFree(d_c);
 
     free(a);
